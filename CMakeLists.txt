@@ -47,7 +47,7 @@ endif()
 ==========================================================#]==]
 find_package(X11)
 
-add_executable(lnxwm  source/main.cpp)
+add_executable(lnxwm  source/main.cpp source/wmanager.cpp source/command.cpp)
 
 target_include_directories(lnxwm PUBLIC include ${X11_INCLUDE_DIR})
 target_link_libraries(lnxwm PUBLIC ${X11_LIBRARIES})
