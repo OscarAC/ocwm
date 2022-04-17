@@ -1,22 +1,20 @@
 #include <iostream>
-#include <X11/Xlib.h>
-#include <unistd.h>
-#include <wmanager.hpp>
+#include <ocwm.hpp>
+
+using namespace wm;
 
 int main()
 {
-    auto wm = wm::window_manager::instance;
+    win_manager wm;
 
-    if(wm.connect(std::string()))
+    if(!wm.connect(std::string()))
     {
-        wm.setup();
-        wm.run();
-    } else {
-
         std::cout << "Could not connect\n";
+        return 1;
     }
 
+    wm.setup();
+    wm.run();
     wm.destroy();
-
     return 0;
 }

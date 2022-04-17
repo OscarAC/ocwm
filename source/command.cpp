@@ -1,8 +1,8 @@
-#include <command.hpp>
+#include <ocwm.hpp>
 #include <unistd.h>
 #include <paths.h>
 
-bool wm::command::exec()
+bool wm::command_t::exec()
 {
     if (fork() == 0) {				
 		setsid();

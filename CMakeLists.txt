@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.22)
 
 include(CMakePackageConfigHelpers)
 
-project(lnxwm)
+project(ocwm)
 
 #[==[==========================================================
                         CMake Config
@@ -47,11 +47,11 @@ endif()
 ==========================================================#]==]
 find_package(X11)
 
-add_executable(lnxwm  source/main.cpp source/wmanager.cpp source/command.cpp)
+add_executable(ocwm  source/main.cpp source/manager.cpp source/command.cpp)
 
-target_include_directories(lnxwm PUBLIC include ${X11_INCLUDE_DIR})
-target_link_libraries(lnxwm PUBLIC ${X11_LIBRARIES})
-target_compile_options(lnxwm PUBLIC -Wall)
+target_include_directories(ocwm PUBLIC include ${X11_INCLUDE_DIR})
+target_link_libraries(ocwm PUBLIC ${X11_LIBRARIES})
+target_compile_options(ocwm PUBLIC -Wall)
 
 #[==[==========================================================
                     Build Examples / Tests
