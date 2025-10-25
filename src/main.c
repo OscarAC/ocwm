@@ -1,5 +1,5 @@
 /*
- * OCWM - Orbital Compositor & Window Manager
+ * OCWM - Window Manager
  * A minimal, performant Wayland compositor with Lua scripting
  */
 
@@ -185,8 +185,8 @@ int main(int argc, char *argv[]) {
     signal(SIGTERM, handle_signal);
 
     printf("╔═══════════════════════════════════════════════╗\n");
-    printf("║  OCWM - Orbital Compositor & Window Manager  ║\n");
-    printf("║  Version %s - Starting up...              ║\n", OCWM_VERSION);
+    printf("║  OCWM - Window Manager                        ║\n");
+    printf("║  Version %s - Starting up...                  ║\n", OCWM_VERSION);
     printf("╚═══════════════════════════════════════════════╝\n\n");
 
     /* Initialize the server */
