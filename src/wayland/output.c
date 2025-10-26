@@ -5,6 +5,7 @@
 #include "../ocwm.h"
 
 static void output_frame(struct wl_listener *listener, void *data) {
+    (void)data;
     struct ocwm_output *output = wl_container_of(listener, output, frame);
     struct wlr_scene *scene = output->server->scene;
     struct wlr_scene_output *scene_output = wlr_scene_get_scene_output(
@@ -25,6 +26,7 @@ static void output_frame(struct wl_listener *listener, void *data) {
 }
 
 static void output_destroy(struct wl_listener *listener, void *data) {
+    (void)data;
     struct ocwm_output *output = wl_container_of(listener, output, destroy);
 
     wl_list_remove(&output->frame.link);

@@ -37,11 +37,14 @@ case $PKG_MGR in
             wlroots-devel \
             pixman-devel \
             libxkbcommon-devel \
+            xkeyboard-config \
             lua54-devel \
-            mesa-devel \
+            mesa-dri \
+            MesaLib-devel \
             eudev-libudev-devel \
             libinput-devel \
-            libdrm-devel
+            libdrm-devel \
+            libwacom
         ;;
     pacman)
         echo "Installing dependencies for Arch Linux..."
@@ -51,6 +54,7 @@ case $PKG_MGR in
             wlroots \
             pixman \
             libxkbcommon \
+            xkeyboard-config \
             lua \
             mesa \
             libinput
@@ -64,6 +68,7 @@ case $PKG_MGR in
             libwlroots-dev \
             libpixman-1-dev \
             libxkbcommon-dev \
+            xkb-data \
             liblua5.4-dev \
             libgles2-mesa-dev \
             libegl1-mesa-dev \
@@ -78,6 +83,7 @@ case $PKG_MGR in
             wlroots-devel \
             pixman-devel \
             libxkbcommon-devel \
+            xkeyboard-config \
             lua-devel \
             mesa-libEGL-devel \
             mesa-libGLES-devel \

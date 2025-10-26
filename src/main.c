@@ -34,8 +34,13 @@ void ocwm_server_init(struct ocwm_server *server) {
     /* Create renderer */
     server->renderer = wlr_renderer_autocreate(server->backend);
     if (!server->renderer) {
-        wlr_log(WLR_ERROR, "Failed to create wlr_renderer");
-        exit(1);
+        wlr_log(WLR_INFO, "Hardware-accelerated renderer failed, falling back to Pixman software renderer");
+        server->renderer = wlr_pixman_renderer_create();
+        if (!server->renderer) {
+            wlr_log(WLR_ERROR, "Failed to create any renderer (including Pixman fallback)");
+            exit(1);
+        }
+        wlr_log(WLR_INFO, "Successfully created Pixman software renderer");
     }
 
     wlr_renderer_init_wl_display(server->renderer, server->wl_display);
@@ -218,11 +223,13 @@ int main(int argc, char *argv[]) {
     }
 
     bool config_loaded = false;
-    for (int i = 0; config_paths[i] != NULL; i++) {
-        if (config_paths[i][0] != '\0' && lua_load_config(&server, config_paths[i])) {
-            printf("✓ Loaded config: %s\n", config_paths[i]);
-            config_loaded = true;
-            break;
+    for (int i = 0; i < 4; i++) {  /* Try all 4 config paths */
+        if (config_paths[i] != NULL && config_paths[i][0] != '\0') {
+            if (lua_load_config(&server, config_paths[i])) {
+                printf("✓ Loaded config: %s\n", config_paths[i]);
+                config_loaded = true;
+                break;
+            }
         }
     }
 

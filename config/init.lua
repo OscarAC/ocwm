@@ -23,6 +23,7 @@ ocwm.effects.set_duration(250, 200)  -- 250ms open, 200ms close
 
 -- Terminal
 ocwm.bind("Mod+Return", function()
+    ocwm.log("Opening alacritty")
     ocwm.spawn("alacritty")
 end)
 

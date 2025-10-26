@@ -7,7 +7,16 @@
 
 /* Keyboard handling */
 static void keyboard_handle_modifiers(struct wl_listener *listener, void *data) {
+    (void)data;
     struct ocwm_keyboard *keyboard = wl_container_of(listener, keyboard, modifiers);
+
+    uint32_t modifiers = wlr_keyboard_get_modifiers(keyboard->wlr_keyboard);
+
+    /* Log when super key modifier is active */
+    if (modifiers & WLR_MODIFIER_LOGO) {
+        wlr_log(WLR_INFO, "Super key modifier is active (modifiers: 0x%x)", modifiers);
+    }
+
     wlr_seat_set_keyboard(keyboard->server->seat, keyboard->wlr_keyboard);
     wlr_seat_keyboard_notify_modifiers(keyboard->server->seat,
         &keyboard->wlr_keyboard->modifiers);
@@ -32,6 +41,16 @@ static void keyboard_handle_key(struct wl_listener *listener, void *data) {
     bool handled = false;
     uint32_t modifiers = wlr_keyboard_get_modifiers(keyboard->wlr_keyboard);
 
+    /* Log super key presses */
+    for (int i = 0; i < nsyms; i++) {
+        if (syms[i] == XKB_KEY_Super_L || syms[i] == XKB_KEY_Super_R) {
+            const char *action = event->state == WL_KEYBOARD_KEY_STATE_PRESSED ? "PRESSED" : "RELEASED";
+            const char *key_name = syms[i] == XKB_KEY_Super_L ? "Super_L" : "Super_R";
+            wlr_log(WLR_INFO, "Super key %s: %s (keycode: %u, modifiers: 0x%x)",
+                    action, key_name, event->keycode, modifiers);
+        }
+    }
+
     /* Handle keybindings on key press */
     if (event->state == WL_KEYBOARD_KEY_STATE_PRESSED) {
         for (int i = 0; i < nsyms; i++) {
@@ -49,6 +68,7 @@ static void keyboard_handle_key(struct wl_listener *listener, void *data) {
 }
 
 static void keyboard_handle_destroy(struct wl_listener *listener, void *data) {
+    (void)data;
     struct ocwm_keyboard *keyboard = wl_container_of(listener, keyboard, destroy);
 
     wl_list_remove(&keyboard->modifiers.link);
@@ -250,10 +270,11 @@ void server_cursor_axis(struct wl_listener *listener, void *data) {
     /* Notify the client with pointer focus */
     wlr_seat_pointer_notify_axis(server->seat,
         event->time_msec, event->orientation, event->delta,
-        event->delta_discrete, event->source, event->relative_direction);
+        event->delta_discrete, event->source);
 }
 
 void server_cursor_frame(struct wl_listener *listener, void *data) {
+    (void)data;
     struct ocwm_server *server = wl_container_of(listener, server, cursor_frame);
 
     /* Notify the client with pointer focus */

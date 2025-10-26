@@ -67,7 +67,7 @@ struct ocwm_workspace *workspace_create(struct ocwm_server *server, int id, cons
 
     wl_list_insert(&server->workspaces, &workspace->link);
 
-    wlr_log(WLR_DEBUG, "Created workspace %d: %s", id, name ?: "(unnamed)");
+    wlr_log(WLR_DEBUG, "Created workspace %d: %s", id, name ? name : "(unnamed)");
 
     return workspace;
 }
@@ -101,22 +101,6 @@ struct ocwm_workspace *workspace_get_by_id(struct ocwm_server *server, int id) {
         }
     }
     return NULL;
-}
-
-/*
- * Count visible (tiled) windows in a workspace
- */
-static int workspace_count_tiled_views(struct ocwm_workspace *workspace) {
-    int count = 0;
-    struct ocwm_view *view;
-
-    wl_list_for_each(view, &workspace->server->views, link) {
-        if (view->workspace == workspace && view->mapped && !view->floating && !view->fullscreen) {
-            count++;
-        }
-    }
-
-    return count;
 }
 
 /*
@@ -170,5 +154,5 @@ void workspace_switch(struct ocwm_server *server, struct ocwm_workspace *workspa
     layout_apply(workspace);
 
     wlr_log(WLR_INFO, "Switched to workspace %d: %s",
-        workspace->id, workspace->name ?: "(unnamed)");
+        workspace->id, workspace->name ? workspace->name : "(unnamed)");
 }

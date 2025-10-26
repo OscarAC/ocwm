@@ -40,5 +40,7 @@ compile_commands.json
 # Cache
 .cache/
 
+docs/
+
 # Claude Code
 .claude/

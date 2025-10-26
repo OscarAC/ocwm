@@ -13,25 +13,6 @@ static struct ocwm_server *g_server = NULL;
  * Helper functions
  */
 
-static uint32_t parse_modifiers(const char *mod_str) {
-    uint32_t mods = 0;
-
-    if (strstr(mod_str, "Mod") || strstr(mod_str, "Super") || strstr(mod_str, "Win")) {
-        mods |= WLR_MODIFIER_LOGO;
-    }
-    if (strstr(mod_str, "Shift")) {
-        mods |= WLR_MODIFIER_SHIFT;
-    }
-    if (strstr(mod_str, "Ctrl") || strstr(mod_str, "Control")) {
-        mods |= WLR_MODIFIER_CTRL;
-    }
-    if (strstr(mod_str, "Alt")) {
-        mods |= WLR_MODIFIER_ALT;
-    }
-
-    return mods;
-}
-
 static xkb_keysym_t parse_keybind_string(const char *bind_str, uint32_t *modifiers) {
     *modifiers = 0;
 
@@ -256,6 +237,7 @@ static int lua_api_window_get_app_id(lua_State *L) {
  * Reloads the configuration
  */
 static int lua_api_reload(lua_State *L) {
+    (void)L;
     wlr_log(WLR_INFO, "Reloading configuration...");
     lua_reload_config(g_server);
     return 0;
@@ -266,6 +248,7 @@ static int lua_api_reload(lua_State *L) {
  * Exits the compositor
  */
 static int lua_api_quit(lua_State *L) {
+    (void)L;
     wlr_log(WLR_INFO, "Quitting compositor...");
     wl_display_terminate(g_server->wl_display);
     return 0;

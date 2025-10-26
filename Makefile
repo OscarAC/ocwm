@@ -3,28 +3,41 @@
 
 # Compiler and flags
 CC = gcc
-CFLAGS = -std=c17 -Wall -Wextra -Wpedantic
+CFLAGS = -std=c17 -Wall -Wextra -Wpedantic -DWLR_USE_UNSTABLE -D_POSIX_C_SOURCE=200809L
 LDFLAGS =
 
 # Use pkg-config to find dependencies
 PKGS = wayland-server wlroots pixman-1 xkbcommon glesv2 egl
 LUA_PKG = $(shell pkg-config --exists lua5.4 && echo lua5.4 || echo lua)
 
-CFLAGS += $(shell pkg-config --cflags $(PKGS) $(LUA_PKG))
+CFLAGS += $(shell pkg-config --cflags $(PKGS) $(LUA_PKG)) -I$(PROTOCOLS_DIR)
 LIBS = $(shell pkg-config --libs $(PKGS) $(LUA_PKG)) -lm
 
 # Directories
 SRC_DIR = src
 BUILD_DIR = build
 BIN_DIR = bin
+PROTOCOLS_DIR = protocols
 
 # Target binary
 TARGET = $(BIN_DIR)/ocwm
 
+# Protocol generation
+WAYLAND_PROTOCOLS = $(shell pkg-config --variable=pkgdatadir wayland-protocols)
+WAYLAND_SCANNER = $(shell pkg-config --variable=wayland_scanner wayland-scanner)
+
+PROTOCOL_HEADERS = \
+	$(PROTOCOLS_DIR)/xdg-shell-protocol.h
+
+PROTOCOL_SOURCES = \
+	$(PROTOCOLS_DIR)/xdg-shell-protocol.c
+
 # Find all .c files
-SOURCES = $(shell find $(SRC_DIR) -name '*.c')
-OBJECTS = $(SOURCES:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
-DEPS = $(OBJECTS:.o=.d)
+SRC_FILES = $(shell find $(SRC_DIR) -name '*.c')
+SRC_OBJECTS = $(SRC_FILES:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
+PROTOCOL_OBJECTS = $(PROTOCOL_SOURCES:.c=.o)
+OBJECTS = $(SRC_OBJECTS) $(PROTOCOL_OBJECTS)
+DEPS = $(SRC_OBJECTS:.o=.d)
 
 # Build modes
 DEBUG ?= 1
@@ -40,8 +53,23 @@ else
     BUILD_TYPE = release
 endif
 
+# Protocol generation rules
+$(PROTOCOLS_DIR)/xdg-shell-protocol.h:
+	@mkdir -p $(PROTOCOLS_DIR)
+	@echo "GEN $@"
+	@$(WAYLAND_SCANNER) server-header $(WAYLAND_PROTOCOLS)/stable/xdg-shell/xdg-shell.xml $@
+
+$(PROTOCOLS_DIR)/xdg-shell-protocol.c: $(PROTOCOLS_DIR)/xdg-shell-protocol.h
+	@mkdir -p $(PROTOCOLS_DIR)
+	@echo "GEN $@"
+	@$(WAYLAND_SCANNER) private-code $(WAYLAND_PROTOCOLS)/stable/xdg-shell/xdg-shell.xml $@
+
+$(PROTOCOLS_DIR)/%.o: $(PROTOCOLS_DIR)/%.c $(PROTOCOL_HEADERS)
+	@echo "CC $<"
+	@$(CC) $(CFLAGS) -c $< -o $@
+
 # Default target
-all: $(TARGET)
+all: $(PROTOCOL_HEADERS) $(TARGET)
 
 # Create directories
 $(BUILD_DIR) $(BIN_DIR):
@@ -83,13 +111,17 @@ uninstall:
 
 # Clean build artifacts
 clean:
-	@rm -rf $(BUILD_DIR) $(BIN_DIR)
+	@rm -rf $(BUILD_DIR) $(BIN_DIR) $(PROTOCOLS_DIR)
 	@echo "Cleaned build artifacts"
 
-# Run the compositor
+# Run the compositor (basic, may need manual environment setup)
 run: $(TARGET)
 	@echo "Starting OCWM..."
 	@$(TARGET)
+
+# Run with startup script (handles environment automatically)
+start: $(TARGET)
+	@./start-ocwm.sh
 
 # Show help
 help:
@@ -101,10 +133,11 @@ help:
 	@echo "  make tiny     - Build ultra-minimal version (< 300KB)"
 	@echo "  make install  - Install to system"
 	@echo "  make clean    - Clean build artifacts"
-	@echo "  make run      - Build and run compositor"
+	@echo "  make start    - Build and run with startup script (recommended)"
+	@echo "  make run      - Build and run compositor directly"
 	@echo "  make help     - Show this help"
 
 # Include dependencies
 -include $(DEPS)
 
-.PHONY: all release tiny install uninstall clean run help
+.PHONY: all release tiny install uninstall clean run start help

@@ -75,6 +75,7 @@ struct ocwm_view *desktop_view_at(struct ocwm_server *server,
 
 /* View event handlers */
 static void xdg_toplevel_map(struct wl_listener *listener, void *data) {
+    (void)data;
     struct ocwm_view *view = wl_container_of(listener, view, map);
 
     view->mapped = true;
@@ -97,10 +98,11 @@ static void xdg_toplevel_map(struct wl_listener *listener, void *data) {
     /* Fire Lua event */
     lua_fire_event(view->server, OCWM_EVENT_WINDOW_OPEN, view);
 
-    wlr_log(WLR_INFO, "Window mapped: %s", view->xdg_toplevel->title ?: "(no title)");
+    wlr_log(WLR_INFO, "Window mapped: %s", view->xdg_toplevel->title ? view->xdg_toplevel->title : "(no title)");
 }
 
 static void xdg_toplevel_unmap(struct wl_listener *listener, void *data) {
+    (void)data;
     struct ocwm_view *view = wl_container_of(listener, view, unmap);
 
     view->mapped = false;
@@ -117,6 +119,7 @@ static void xdg_toplevel_unmap(struct wl_listener *listener, void *data) {
 }
 
 static void xdg_toplevel_destroy(struct wl_listener *listener, void *data) {
+    (void)data;
     struct ocwm_view *view = wl_container_of(listener, view, destroy);
 
     wl_list_remove(&view->map.link);
@@ -172,6 +175,7 @@ static void begin_interactive(struct ocwm_view *view,
 }
 
 static void xdg_toplevel_request_move(struct wl_listener *listener, void *data) {
+    (void)data;
     struct ocwm_view *view = wl_container_of(listener, view, request_move);
     begin_interactive(view, OCWM_CURSOR_MOVE, 0);
 }
@@ -183,11 +187,13 @@ static void xdg_toplevel_request_resize(struct wl_listener *listener, void *data
 }
 
 static void xdg_toplevel_request_maximize(struct wl_listener *listener, void *data) {
+    (void)data;
     struct ocwm_view *view = wl_container_of(listener, view, request_maximize);
     wlr_xdg_surface_schedule_configure(view->xdg_toplevel->base);
 }
 
 static void xdg_toplevel_request_fullscreen(struct wl_listener *listener, void *data) {
+    (void)data;
     struct ocwm_view *view = wl_container_of(listener, view, request_fullscreen);
     wlr_xdg_toplevel_set_fullscreen(view->xdg_toplevel,
         view->xdg_toplevel->requested.fullscreen);
